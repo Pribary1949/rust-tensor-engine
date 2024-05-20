@@ -21,3 +21,26 @@ impl Tensor {
 
     fn compute_strides(shape: &[usize]) -> Vec<usize> {
         let mut strides = vec![1; shape.len()];
+        for i in (0..shape.len() - 1).rev() {
+            strides[i] = strides[i + 1] * shape[i + 1];
+        }
+        strides
+    }
+
+    pub fn get(&self, indices: &[usize]) -> f32 {
+        let mut index = 0;
+        for (i, &idx) in indices.iter().enumerate() {
+            index += idx * self.strides[i];
+        }
+        self.data[index]
+    }
+
+    pub fn matmul(&self, other: &Tensor) -> Result<Tensor, String> {
+        if self.shape.len() != 2 || other.shape.len() != 2 {
+            return Err("Matmul only supported for 2D tensors".into());
+        }
+        if self.shape[1] != other.shape[0] {
+            return Err(format!("Dimension mismatch: {} != {}", self.shape[1], other.shape[0]));
+        }
+
+        let m = self.shape[0];
