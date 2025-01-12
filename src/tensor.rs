@@ -44,3 +44,25 @@ impl Tensor {
         }
 
         let m = self.shape[0];
+        let k = self.shape[1];
+        let n = other.shape[1];
+        let mut result_data = vec![0.0; m * n];
+
+        for i in 0..m {
+            for j in 0..n {
+                let mut sum = 0.0;
+                for p in 0..k {
+                    sum += self.data[i * k + p] * other.data[p * n + j];
+                }
+                result_data[i * n + j] = sum;
+            }
+        }
+
+        Ok(Tensor::new(result_data, vec![m, n]))
+    }
+
+    pub fn relu(&self) -> Tensor {
+        let data = self.data.iter().map(|&x| if x > 0.0 { x } else { 0.0 }).collect();
+        Tensor::new(data, self.shape.clone())
+    }
+}
