@@ -66,3 +66,28 @@ impl Tensor {
         Tensor::new(data, self.shape.clone())
     }
 }
+
+impl Add for Tensor {
+    type Output = Result<Tensor, String>;
+
+    fn add(self, other: Self) -> Self::Output {
+        if self.shape != other.shape {
+            return Err("Shape mismatch for addition".into());
+        }
+        let data = self.data.iter().zip(other.data.iter()).map(|(a, b)| a + b).collect();
+        Ok(Tensor::new(data, self.shape))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_matmul() {
+        let a = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], vec![2, 2]);
+        let b = Tensor::new(vec![5.0, 6.0, 7.0, 8.0], vec![2, 2]);
+        let c = a.matmul(&b).unwrap();
+        assert_eq!(c.data, vec![19.0, 22.0, 43.0, 50.0]);
+    }
+}
